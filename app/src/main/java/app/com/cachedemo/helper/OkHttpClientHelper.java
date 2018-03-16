@@ -44,7 +44,7 @@ public class OkHttpClientHelper {
     }
 
     /**
-     *
+     * OkHttpClient 基本设置
      */
     private void init() {
 

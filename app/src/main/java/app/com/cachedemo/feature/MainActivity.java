@@ -3,6 +3,7 @@ package app.com.cachedemo.feature;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -37,13 +38,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initPermission();
-        init();
     }
 
     //Android 6.0以上的权限申请
     private void initPermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_PHONE_STATE}, 0);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        }
+        else{
+            init();
         }
     }
 
@@ -81,11 +84,13 @@ public class MainActivity extends AppCompatActivity {
         newsApi.getNews().enqueue(new Callback<NewsEntity>() {
             @Override
             public void onResponse(Call<NewsEntity> call, Response<NewsEntity> response) {
+                //请求成功
                 getDataSuccess(response.body().getStories());
             }
 
             @Override
             public void onFailure(Call<NewsEntity> call, Throwable t) {
+                //请求失败
                 getDataFailure(t.getMessage());
             }
         });
@@ -104,5 +109,15 @@ public class MainActivity extends AppCompatActivity {
             refreshLayout.setRefreshing(false);
         }
         Toast.makeText(MainActivity.this,"加载失败，失败原因："+msg,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults[0]==PackageManager.PERMISSION_GRANTED){
+            init();
+        }
+        else{
+            finish();
+        }
     }
 }
